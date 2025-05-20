@@ -265,6 +265,7 @@ onBeforeUnmount(() => {
   --swiper-pagination-bullet-inactive-color: rgba(255, 255, 255, 0.5);
   --swiper-pagination-bullet-inactive-opacity: 0.7;
 }
+ 
 
 :deep(.swiper-pagination) {
   bottom: 5px !important;

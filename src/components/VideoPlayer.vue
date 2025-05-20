@@ -23,7 +23,7 @@
       <div class="absolute inset-0 bg-black/20"></div>
       
       <!-- 中央大播放按钮 -->
-      <div v-if="!isPlaying" class="z-[1000] absolute inset-0 flex items-center justify-center">
+      <div v-if="!isPlaying" class="z-[1] absolute inset-0 flex items-center justify-center">
         <button @click="togglePlay" class="p-4 hover:bg-white/20 rounded-full transition transform hover:scale-110 bg-black/30">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 md:h-16 md:w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
