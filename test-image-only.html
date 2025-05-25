@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMAGE_ONLY 页面测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .test-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        .test-link:hover {
+            background: #0056b3;
+        }
+        .features {
+            margin-top: 30px;
+        }
+        .features h2 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .features ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .features li:before {
+            content: "✅ ";
+            margin-right: 8px;
+        }
+        .note {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .note h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>IMAGE_ONLY 页面组件测试</h1>
+        
+        <div class="test-links">
+            <a href="http://localhost:4000/test" class="test-link" target="_blank">
+                打开测试页面
+            </a>
+            <a href="http://localhost:4000/page/test-image-page" class="test-link" target="_blank">
+                直接测试 IMAGE_ONLY
+            </a>
+        </div>
+
+        <div class="note">
+            <h3>测试说明</h3>
+            <p>我们已经成功实现了 <strong>IMAGE_ONLY</strong> 页面类型的图片轮播组件，具有以下特性：</p>
+        </div>
+
+        <div class="features">
+            <h2>功能特性</h2>
+            <ul>
+                <li>全屏图片轮播显示</li>
+                <li>自动播放（5秒间隔）</li>
+                <li>支持手势滑动切换</li>
+                <li>键盘导航（左右箭头键）</li>
+                <li>图片缩放功能（双击或手势）</li>
+                <li>底部信息覆盖层</li>
+                <li>动态显示每张图片的标题和描述</li>
+                <li>图片计数器显示</li>
+                <li>响应式设计，移动端优化</li>
+                <li>空格键暂停/继续自动播放</li>
+            </ul>
+        </div>
+
+        <div class="features">
+            <h2>数据结构</h2>
+            <p>组件会自动从 <code>mediaItems</code> 中筛选出 <code>mediaType: "image"</code> 的项目，并按 <code>displayOrder</code> 排序。</p>
+            <p>信息覆盖层会根据当前显示的图片动态显示对应的 <code>title</code> 和 <code>description</code>。</p>
+        </div>
+
+        <div class="features">
+            <h2>控制方式</h2>
+            <ul>
+                <li>鼠标点击导航按钮</li>
+                <li>键盘左右箭头键</li>
+                <li>手势滑动（移动端）</li>
+                <li>点击分页指示器</li>
+                <li>空格键暂停/继续自动播放</li>
+                <li>双击图片进行缩放</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <h3>实现细节</h3>
+            <p>参考了 <code>ScenicSpotCard.vue</code> 的 Swiper 实现，创建了专门的 <code>ImageOnlyPage.vue</code> 组件。</p>
+            <p>在 <code>page.vue</code> 中添加了对 <code>IMAGE_ONLY</code> 页面类型的支持，并更新了测试页面。</p>
+        </div>
+    </div>
+</body>
+</html> 

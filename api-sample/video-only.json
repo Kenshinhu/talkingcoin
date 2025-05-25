@@ -1,0 +1,35 @@
+{
+    "success": true,
+    "data": {
+        "id": "1eb2f617-a9d7-4652-8722-72e833d5f5fe",
+        "name": "这是一个测试视频",
+        "description": "这是一个测试视频",
+        "pageType": "VIDEO_ONLY",
+        "headerSettings": {},
+        "footerSettings": {},
+        "contentData": {},
+        "styleSettings": {},
+        "accessCount": 2,
+        "createdAt": "2025-05-17T11:26:13.967Z",
+        "updatedAt": "2025-05-25T09:13:48.893Z",
+        "mediaItems": [
+            {
+                "id": "74b1ba48-f31e-4d26-aac1-b46b1ccc694f",
+                "fileId": "2257ad58-6940-4238-bd4f-d9b80d913077",
+                "mediaType": "video",
+                "title": "",
+                "description": "",
+                "displayOrder": 0,
+                "isCover": false,
+                "isThumbnail": false,
+                "file": {
+                    "id": "2257ad58-6940-4238-bd4f-d9b80d913077",
+                    "fileName": "Weixin Videos2025-05-14_153435_811.mp4",
+                    "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/83b21141-b7c3-4b65-85f0-109df08b80a9.mp4",
+                    "mimeType": "video/mp4",
+                    "fileSize": 1721963
+                }
+            }
+        ]
+    }
+}

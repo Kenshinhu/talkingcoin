@@ -2,7 +2,7 @@
   "name": "talkingcoin",
   "private": true,
   "version": "0.0.0",
-  "type": "module", 
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,9 +11,11 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.19",
     "@heroicons/vue": "^2.1.1",
+    "axios": "^1.9.0",
     "imagesloaded": "^5.0.0",
     "masonry-layout": "^4.2.2",
     "swiper": "^11.2.6",
+    "video.js": "^8.22.0",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vue-waterfall-plugin-next": "^2.6.5"

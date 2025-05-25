@@ -12,4 +12,7 @@
 import TheHeader from '../components/TheHeader.vue'
 import VideoPlayer from '../components/VideoPlayer.vue'
 import ScenicSpotGrid from '../components/ScenicSpotGrid.vue'
+
+// 设置页面标题
+document.title = '南华寺 所愿皆所得'
 </script> 

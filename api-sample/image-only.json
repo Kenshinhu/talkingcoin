@@ -1,0 +1,69 @@
+{
+    "success": true,
+    "data": {
+      "id": "ac78213d-126f-4212-a2f9-c7edd2246c4c",
+      "name": "图片页面创建",
+      "description": "图片页面创建",
+      "pageType": "IMAGE_ONLY",
+      "headerSettings": {},
+      "footerSettings": {},
+      "contentData": {},
+      "styleSettings": {},
+      "accessCount": 0,
+      "createdAt": "2025-05-17T14:19:29.600Z",
+      "updatedAt": "2025-05-17T14:58:38.440Z",
+      "mediaItems": [
+        {
+          "id": "b0d54ea3-a1d4-4d03-a443-a99e7546b919",
+          "fileId": "5c1075e2-3988-4f92-bafe-9773c27a1766",
+          "mediaType": "image",
+          "title": "",
+          "description": "",
+          "displayOrder": 0,
+          "isCover": true,
+          "isThumbnail": true,
+          "file": {
+            "id": "5c1075e2-3988-4f92-bafe-9773c27a1766",
+            "fileName": "5915.jpeg",
+            "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/221d2fa0-6b45-4e55-8a15-aab766e68e07.jpeg",
+            "mimeType": "image/jpeg",
+            "fileSize": 207387
+          }
+        },
+        {
+          "id": "88c173b2-4d79-4b14-95de-7fd3419fd37b",
+          "fileId": "d4101bc4-5750-4c05-b20f-703a8af6bf6a",
+          "mediaType": "image",
+          "title": "111333",
+          "description": "11113333",
+          "displayOrder": 1,
+          "isCover": false,
+          "isThumbnail": false,
+          "file": {
+            "id": "d4101bc4-5750-4c05-b20f-703a8af6bf6a",
+            "fileName": "20180911025249266.png",
+            "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/928fb07e-f56b-444a-90ed-aedcd64063f2.png",
+            "mimeType": "image/png",
+            "fileSize": 162691
+          }
+        },
+        {
+          "id": "ce90bb47-a79f-448a-9486-6f598ffc7d9e",
+          "fileId": "3f73b7aa-aee0-4849-a416-7ca97f28216a",
+          "mediaType": "image",
+          "title": "2222",
+          "description": "111133222",
+          "displayOrder": 2,
+          "isCover": false,
+          "isThumbnail": false,
+          "file": {
+            "id": "3f73b7aa-aee0-4849-a416-7ca97f28216a",
+            "fileName": "w6fCmYDlTNYfgdXBZjZH107c9zJ.jpeg",
+            "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/c47ef791-9f78-4598-b67e-a94b89b8e79d.jpeg",
+            "mimeType": "image/jpeg",
+            "fileSize": 17523
+          }
+        }
+      ]
+    }
+  }
