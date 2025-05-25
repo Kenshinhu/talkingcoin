@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid 布局测试</title>
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            border: 2px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        /* 测试 Grid 布局 */
+        .media-grid-test {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .media-item-test {
+            aspect-ratio: 1;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        /* 测试不同列数 */
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        .grid-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Grid 布局测试</h1>
+        
+        <div class="section">
+            <h2 class="section-title">3列网格 (默认)</h2>
+            <div class="media-grid-test">
+                <div class="media-item-test">项目 1</div>
+                <div class="media-item-test">项目 2</div>
+                <div class="media-item-test">项目 3</div>
+                <div class="media-item-test">项目 4</div>
+                <div class="media-item-test">项目 5</div>
+                <div class="media-item-test">项目 6</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">2列网格</h2>
+            <div class="media-grid-test grid-2">
+                <div class="media-item-test">项目 1</div>
+                <div class="media-item-test">项目 2</div>
+                <div class="media-item-test">项目 3</div>
+                <div class="media-item-test">项目 4</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">4列网格</h2>
+            <div class="media-grid-test grid-4">
+                <div class="media-item-test">项目 1</div>
+                <div class="media-item-test">项目 2</div>
+                <div class="media-item-test">项目 3</div>
+                <div class="media-item-test">项目 4</div>
+                <div class="media-item-test">项目 5</div>
+                <div class="media-item-test">项目 6</div>
+                <div class="media-item-test">项目 7</div>
+                <div class="media-item-test">项目 8</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">5列网格</h2>
+            <div class="media-grid-test grid-5">
+                <div class="media-item-test">项目 1</div>
+                <div class="media-item-test">项目 2</div>
+                <div class="media-item-test">项目 3</div>
+                <div class="media-item-test">项目 4</div>
+                <div class="media-item-test">项目 5</div>
+                <div class="media-item-test">项目 6</div>
+                <div class="media-item-test">项目 7</div>
+                <div class="media-item-test">项目 8</div>
+                <div class="media-item-test">项目 9</div>
+                <div class="media-item-test">项目 10</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 动态测试 JavaScript 生成的样式
+        console.log('测试动态生成的 grid 样式:');
+        
+        function testGridStyle(perRow, gap) {
+            const style = {
+                display: 'grid',
+                gridTemplateColumns: `repeat(${perRow}, 1fr)`,
+                gap: gap,
+                alignItems: 'start'
+            };
+            console.log(`${perRow}列, ${gap}间距:`, style);
+            return style;
+        }
+        
+        testGridStyle(2, '20px');
+        testGridStyle(3, '30px');
+        testGridStyle(4, '15px');
+        testGridStyle(5, '25px');
+    </script>
+</body>
+</html> 

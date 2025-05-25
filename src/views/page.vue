@@ -31,6 +31,7 @@ import { useRoute } from 'vue-router'
 import api from '../api/index.js'
 import VideoOnlyPage from '../components/VideoOnlyPage.vue'
 import ImageOnlyPage from '../components/ImageOnlyPage.vue'
+import MixedPage from '../components/MixedPage.vue'
 import DefaultPage from '../components/DefaultPage.vue'
 
 export default {
@@ -38,6 +39,7 @@ export default {
   components: {
     VideoOnlyPage,
     ImageOnlyPage,
+    MixedPage,
     DefaultPage
   },
   setup() {
@@ -56,6 +58,8 @@ export default {
           return 'VideoOnlyPage'
         case 'IMAGE_ONLY':
           return 'ImageOnlyPage'
+        case 'MIXED':
+          return 'MixedPage'
         case 'SCENIC_SPOT':
           // 可以在这里添加景点页面组件
           return 'ScenicSpotPage'
@@ -91,6 +95,11 @@ export default {
             mediaItems: data.mediaItems || []
           }
         case 'IMAGE_ONLY':
+          return {
+            ...baseProps,
+            mediaItems: data.mediaItems || []
+          }
+        case 'MIXED':
           return {
             ...baseProps,
             mediaItems: data.mediaItems || []

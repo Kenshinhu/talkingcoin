@@ -1,0 +1,121 @@
+{
+    "success": true,
+    "data": {
+      "id": "0e4fbfa3-1d53-40f2-baea-3d3c3874b2ff",
+      "name": "页面标题",
+      "description": "页面标题",
+      "pageType": "MIXED",
+      "headerSettings": {
+        "text": "页面标题页面标题",
+        "height": "1px",
+        "textAlign": "center",
+        "textColor": "#ff0000",
+        "backgroundColor": "#ff0000"
+      },
+      "footerSettings": {
+        "copyrightText": "页面标题",
+        "backgroundColor": "#ff0000",
+        "showSocialLinks": false
+      },
+      "contentData": {
+        "banner": [
+          "e470c679-536b-4d37-ad69-1037fae68c4f"
+        ],
+        "gridGap": "10px",
+        "sections": [
+          {
+            "id": "default",
+            "title": "默认分区",
+            "mediaIds": [
+              "b93416e2-184b-4e60-bdf4-5a417b5197ec"
+            ],
+            "mediaItemsData": [
+              {
+                "id": "b93416e2-184b-4e60-bdf4-5a417b5197ec",
+                "fileId": "a5a2ac97-822b-457d-8b4a-16c127486c78",
+                "mediaType": "image",
+                "title": "12333344",
+                "description": "12312333344",
+                "displayOrder": 1,
+                "isCover": false,
+                "isThumbnail": false,
+                "file": {
+                  "id": "a5a2ac97-822b-457d-8b4a-16c127486c78",
+                  "fileName": "20180911025249266.jpg",
+                  "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/0bd5192d-5d97-4e12-b70c-980205662a55.jpg",
+                  "mimeType": "image/jpeg",
+                  "fileSize": 37201
+                }
+              }
+            ]
+          }
+        ],
+        "mediaLayout": "grid",
+        "mediaPerRow": 2,
+        "mediaAspectRatio": 1.5,
+        "bannerMediaItemsData": [
+          {
+            "id": "e470c679-536b-4d37-ad69-1037fae68c4f",
+            "fileId": "ddfa3763-c3fe-487c-952b-92c45ecef3a9",
+            "mediaType": "image",
+            "title": "bannera001",
+            "description": "bannera001",
+            "displayOrder": 0,
+            "isCover": true,
+            "isThumbnail": true,
+            "file": {
+              "id": "ddfa3763-c3fe-487c-952b-92c45ecef3a9",
+              "fileName": "5915.jpeg",
+              "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/cac89d6c-b9d2-4848-aaa1-4d2e74cde17b.jpeg",
+              "mimeType": "image/jpeg",
+              "fileSize": 207387
+            }
+          }
+        ]
+      },
+      "styleSettings": {
+        "theme": "light",
+        "fontFamily": "Arial, sans-serif",
+        "primaryColor": "#ff0000"
+      },
+      "accessCount": 26,
+      "createdAt": "2025-05-18T11:17:23.822Z",
+      "updatedAt": "2025-05-25T10:35:47.718Z",
+      "mediaItems": [
+        {
+          "id": "e470c679-536b-4d37-ad69-1037fae68c4f",
+          "fileId": "ddfa3763-c3fe-487c-952b-92c45ecef3a9",
+          "mediaType": "image",
+          "title": "bannera001",
+          "description": "bannera001",
+          "displayOrder": 0,
+          "isCover": true,
+          "isThumbnail": true,
+          "file": {
+            "id": "ddfa3763-c3fe-487c-952b-92c45ecef3a9",
+            "fileName": "5915.jpeg",
+            "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/cac89d6c-b9d2-4848-aaa1-4d2e74cde17b.jpeg",
+            "mimeType": "image/jpeg",
+            "fileSize": 207387
+          }
+        },
+        {
+          "id": "b93416e2-184b-4e60-bdf4-5a417b5197ec",
+          "fileId": "a5a2ac97-822b-457d-8b4a-16c127486c78",
+          "mediaType": "image",
+          "title": "12333344",
+          "description": "12312333344",
+          "displayOrder": 1,
+          "isCover": false,
+          "isThumbnail": false,
+          "file": {
+            "id": "a5a2ac97-822b-457d-8b4a-16c127486c78",
+            "fileName": "20180911025249266.jpg",
+            "filePath": "http://talkingcoin.oss-cn-shenzhen.aliyuncs.com/uploads/0bd5192d-5d97-4e12-b70c-980205662a55.jpg",
+            "mimeType": "image/jpeg",
+            "fileSize": 37201
+          }
+        }
+      ]
+    }
+  }
