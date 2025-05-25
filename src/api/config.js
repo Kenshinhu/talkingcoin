@@ -19,7 +19,7 @@ export const ENV_CONFIG = {
     BASE_URL: 'http://127.0.0.1:3000'
   },
   production: {
-    BASE_URL: 'https://api.yourdomain.com'
+    BASE_URL: 'https://m.talkingcoin.cn/'
   }
 }
 
