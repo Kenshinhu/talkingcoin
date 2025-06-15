@@ -16,10 +16,10 @@ export const API_CONFIG = {
 // 环境配置
 export const ENV_CONFIG = {
   development: {
-    BASE_URL: 'http://127.0.0.1:3000'
+    BASE_URL: 'https://api.talkingcoin.cn'
   },
   production: {
-    BASE_URL: 'https://m.talkingcoin.cn/'
+    BASE_URL: 'https://api.talkingcoin.cn'
   }
 }
 

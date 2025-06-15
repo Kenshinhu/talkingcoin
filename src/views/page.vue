@@ -5,7 +5,18 @@
       <p>加载中...</p>
     </div>
     <div v-else-if="error" class="error-container">
-      <p>{{ error }}</p>
+      <div v-if="errorType === 'not-found'" class="not-found">
+        <div class="not-found-icon">🔍</div>
+        <h2>页面不存在</h2>
+        <p>抱歉，您访问的页面不存在或已被删除</p>
+        <button @click="goBack" class="back-button">返回上一页</button>
+      </div>
+      <div v-else class="general-error">
+        <div class="error-icon">⚠️</div>
+        <h2>加载失败</h2>
+        <p>{{ error }}</p>
+        <button @click="retry" class="retry-button">重试</button>
+      </div>
     </div>
     <div v-else>
       <!-- 根据pageType渲染不同的组件 -->
@@ -46,6 +57,7 @@ export default {
     const route = useRoute()
     const loading = ref(false)
     const error = ref(null)
+    const errorType = ref(null)
     const pageData = ref(null)
     const showDebug = ref(false) // 可以设置为true来显示调试信息
 
@@ -79,8 +91,8 @@ export default {
 
       const baseProps = {
         pageData: data,
-        name: '旅行的意义——在世界的每一个角落，发现自我、感受生活、体验不同文化、结识新朋友、欣赏壮丽风景、品味美食、挑战自我极限、收获成长与感动、留下珍贵回忆、让心灵自由飞翔、让人生更加丰富多彩。',
-        description: '旅行不仅是对未知世界的探索，更是对自我内心的发现。在旅途中，我们遇见不同的人，欣赏多样的风景，体验别样的生活方式。每一次出发，都是一次成长，每一次归来，都是心灵的充实。旅行让我们学会包容、理解与感恩，让生活变得更加丰富多彩。',
+        name: data.name,
+        description: data.description,
         headerSettings: data.headerSettings,
         footerSettings: data.footerSettings,
         contentData: data.contentData,
@@ -92,7 +104,7 @@ export default {
         case 'VIDEO_ONLY':
           return {
             ...baseProps,
-            mediaItems: data.mediaItems || []
+            mediaItems: data.contentData?.mediaItemsData || []
           }
         case 'IMAGE_ONLY':
           return {
@@ -125,6 +137,7 @@ export default {
       try {
         loading.value = true
         error.value = null
+        errorType.value = null
         
         // 从路由参数中获取id
         const id = route.params.pathMatch || route.params.id
@@ -134,6 +147,8 @@ export default {
         const response = await api.get(`/pages/${id}`)
         pageData.value = response
 
+        
+
         //使用 name - description 作为页面标题
         const {name, description} = response?.data
         document.title = `${name} - ${description}`;
@@ -141,11 +156,29 @@ export default {
         console.log('页面类型:', response?.data?.pageType)
         
       } catch (err) {
-        error.value = err.response?.data?.message || err.message || '获取页面数据失败'
         console.error('获取页面数据错误:', err)
+        
+        // 判断错误类型
+        if (err.response?.status === 404) {
+          errorType.value = 'not-found'
+          error.value = '页面不存在'
+        } else {
+          errorType.value = 'general'
+          error.value = err.response?.data?.message || err.message || '获取页面数据失败'
+        }
       } finally {
         loading.value = false
       }
+    }
+
+    // 返回上一页
+    const goBack = () => {
+      window.history.back()
+    }
+
+    // 重试加载
+    const retry = () => {
+      fetchPageData()
     }
 
     // 页面加载时获取数据
@@ -156,11 +189,14 @@ export default {
     return {
       loading,
       error,
+      errorType,
       pageData,
       showDebug,
       currentPageComponent,
       pageComponentProps,
-      fetchPageData
+      fetchPageData,
+      goBack,
+      retry
     }
   }
 }
@@ -201,10 +237,53 @@ export default {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  color: #e74c3c;
-  font-size: 1.1rem;
-  text-align: center;
   padding: 20px;
+}
+
+.not-found, .general-error {
+  text-align: center;
+  max-width: 500px;
+}
+
+.not-found-icon, .error-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.not-found h2, .general-error h2 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.not-found p, .general-error p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.back-button, .retry-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover, .retry-button:hover {
+  background-color: #2980b9;
+}
+
+.retry-button {
+  background-color: #e74c3c;
+}
+
+.retry-button:hover {
+  background-color: #c0392b;
 }
 
 .debug-info {

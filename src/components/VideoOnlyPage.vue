@@ -6,14 +6,14 @@
         ref="videoRef"
         id="my-video"
         class="video-js vjs-default-skin vjs-big-play-centered"
-        controls
-        preload="auto"
         playsinline
         webkit-playsinline="true"
         x5-playsinline="true"
         x-webkit-airplay="allow"
         x5-video-player-type="h5"
         x5-video-player-fullscreen="true"
+        :poster="posterUrl"
+        preload="none"
       >
         <p class="vjs-no-js">
           要查看此视频，请启用JavaScript，并考虑升级到支持HTML5视频的Web浏览器
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
 
@@ -65,6 +65,10 @@ export default {
     description: {
       type: String,
       required: true
+    },
+    contentData: {
+      type: Object,
+      default: () => ({})
     }
   },
   setup(props) {
@@ -83,8 +87,17 @@ export default {
 
     const posterUrl = computed(() => {
       // 如果有封面图片，可以在这里设置
-      return props.mediaItems?.[0]?.file?.posterUrl || ''
-    })
+      // props.mediaItems
+      let posterUrl = props.mediaItems?.[0]?.file?.posterUrl || ''
+      props.mediaItems.forEach(item => {
+        if (item.isCover) {
+          posterUrl = item.file.filePath
+        }
+      })
+
+      console.log('计算得到的posterUrl:', posterUrl)
+      return posterUrl
+    }) 
 
     const title = computed(() => { 
       return props.name || ''
@@ -142,30 +155,143 @@ export default {
         return
       }
 
-      // 初始化Video.js
+      console.log('videoUrl.value', videoUrl.value)
+
+      // 验证是否为有效的视频URL
+      const isValidVideoUrl = (url) => {
+        // 1. 检查URL格式是否正确
+        try {
+          new URL(url)
+        } catch (error) {
+          console.error('无效的URL格式:', url)
+          return false
+        }
+
+        // 2. 检查文件扩展名是否为视频格式
+        const videoExtensions = ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv', 'flv', 'wmv', '3gp', 'm4v']
+        const urlWithoutParams = url.split('?')[0] // 移除查询参数
+        const ext = urlWithoutParams.split('.').pop()?.toLowerCase()
+        
+        if (!ext || !videoExtensions.includes(ext)) {
+          console.error('文件扩展名不是视频格式:', ext)
+          return false
+        }
+
+        // 3. 检查mimeType是否为视频类型
+        const mimeType = props.mediaItems?.[0]?.file?.mimeType
+        if (mimeType && !mimeType.startsWith('video/')) {
+          console.error('mimeType不是视频类型:', mimeType)
+          return false
+        }
+
+        // 4. 检查mediaType是否为video
+        const mediaType = props.mediaItems?.[0]?.mediaType
+        if (mediaType && mediaType !== 'video') {
+          console.error('mediaType不是video:', mediaType)
+          return false
+        }
+
+        return true
+      }
+
+      // 验证视频URL
+      if (!isValidVideoUrl(videoUrl.value)) {
+        console.error('无效的视频URL:', videoUrl.value)
+        videoError.value = true
+        return
+      }
+
+      // 动态检测文件类型而不是硬编码
+      const getVideoType = (url) => {
+        const ext = url.split('?')[0].split('.').pop()?.toLowerCase() // 移除查询参数后获取扩展名
+        const mimeType = props.mediaItems?.[0]?.file?.mimeType
+        
+        if (mimeType && mimeType.startsWith('video/')) {
+          return mimeType
+        }
+        
+        switch (ext) {
+          case 'mp4': return 'video/mp4'
+          case 'webm': return 'video/webm'
+          case 'ogg': return 'video/ogg'
+          case 'mov': return 'video/quicktime'
+          case 'avi': return 'video/x-msvideo'
+          case 'mkv': return 'video/x-matroska'
+          case 'flv': return 'video/x-flv'
+          case 'wmv': return 'video/x-ms-wmv'
+          case '3gp': return 'video/3gpp'
+          case 'm4v': return 'video/mp4'
+          default: return 'video/mp4'
+        }
+      }
+
+      // 如果需要进一步验证文件是否可访问，可以添加这个函数
+      const checkVideoAccessibility = async (url) => {
+        try {
+          const response = await fetch(url, { 
+            method: 'HEAD',
+            timeout: 5000 // 5秒超时
+          })
+          
+          if (!response.ok) {
+            console.error(`视频文件不可访问: HTTP ${response.status}`)
+            return false
+          }
+
+          const contentType = response.headers.get('content-type')
+          if (contentType && !contentType.startsWith('video/')) {
+            console.error('服务器返回的Content-Type不是视频类型:', contentType)
+            return false
+          }
+
+          console.log('视频文件验证通过:', {
+            url,
+            contentType,
+            contentLength: response.headers.get('content-length')
+          })
+          return true
+        } catch (error) {
+          console.error('检查视频可访问性失败:', error)
+          return false
+        }
+      }
+
+      // 可选：异步检查文件是否可访问（注释掉以避免影响性能）
+      // checkVideoAccessibility(videoUrl.value).then(isAccessible => {
+      //   if (!isAccessible) {
+      //     videoError.value = true
+      //     return
+      //   }
+      // })
+
       player.value = videojs('my-video', {
         sources: [
           {
             src: videoUrl.value,
-            type: 'video/mp4',
+            type: getVideoType(videoUrl.value),
           },
         ],
         fluid: true,
         responsive: true,
         playbackRates: [0.5, 1, 1.5, 2],
         poster: posterUrl.value,
+        // 通过Video.js配置替代HTML属性
+        controls: props.contentData?.controls || false,
+        // iOS修复：设置preload为metadata以确保poster显示
+        preload: 'metadata',
+        loop: props.contentData?.loop || false,
+        autoplay: props.contentData?.autoPlayInMiniProgram || false,
+        muted: props.contentData?.muted || false,
         controlBar: {
           pictureInPictureToggle: false,
         },
-        // 移动端优化配置
+        // 移除过于严格的配置
         techOrder: ['html5'],
         html5: {
-          vhs: {
-            overrideNative: true
-          },
-          nativeVideoTracks: false,
-          nativeAudioTracks: false,
-          nativeTextTracks: false
+          // 允许使用原生功能作为备选方案
+          nativeVideoTracks: true,
+          nativeAudioTracks: true,
+          nativeTextTracks: true
         }
       })
 
@@ -178,6 +304,26 @@ export default {
         const containerHeight = document.querySelector('.video-container')?.clientHeight
         if (containerHeight) {
           player.value.dimensions('auto', containerHeight)
+        }
+
+        // 根据 contentData.loop 设置循环播放
+        const shouldLoop = props.contentData?.loop || false
+        const videoElement = player.value.el().querySelector('video')
+        if (videoElement) {
+          videoElement.loop = shouldLoop
+          console.log('设置视频循环播放:', shouldLoop)
+          
+          // iOS修复：手动设置poster属性到HTML video元素
+          if (posterUrl.value) {
+            videoElement.setAttribute('poster', posterUrl.value)
+            console.log('iOS修复：手动设置poster:', posterUrl.value)
+            
+            // 额外的iOS修复：使用Video.js的poster方法
+            setTimeout(() => {
+              player.value.poster(posterUrl.value)
+              console.log('iOS修复：使用Video.js设置poster')
+            }, 100)
+          }
         }
 
         // 添加自定义点击事件处理
@@ -287,6 +433,22 @@ export default {
       }
     }
 
+    // 监听poster URL的变化
+    watch(posterUrl, (newPosterUrl) => {
+      if (player.value && newPosterUrl) {
+        console.log('Poster URL变化，重新设置:', newPosterUrl)
+        
+        // 设置Video.js poster
+        player.value.poster(newPosterUrl)
+        
+        // 设置HTML video元素poster (iOS修复)
+        const videoElement = player.value.el().querySelector('video')
+        if (videoElement) {
+          videoElement.setAttribute('poster', newPosterUrl)
+        }
+      }
+    })
+
     onMounted(() => {
       // 延迟初始化，确保DOM已经渲染
       setTimeout(() => {
@@ -337,8 +499,7 @@ export default {
 
 /* Video.js 播放器样式 */
 .video-js {
-  width: 100% !important;
-  height: 100% !important;
+  width: 100% !important; 
   max-height: 100vh;
 }
 
