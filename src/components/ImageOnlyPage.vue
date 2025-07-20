@@ -1,7 +1,7 @@
 <template>
-  <div class="image-only-page">
+  <div :class="pageClass">
     <!-- 图片轮播容器 -->
-    <div class="image-slider-container">
+    <div class="image-slider-container" :class="containerClass">
       <swiper
         :modules="swiperModules"
         :slides-per-view="1"
@@ -10,7 +10,6 @@
           clickable: true, 
           dynamicBullets: true
         }"
-        :navigation="true"
         :keyboard="{ enabled: true }"
         :grab-cursor="true"
         :autoplay="{
@@ -21,7 +20,8 @@
         :loop="true"
         :lazy="{ loadPrevNext: true }"
         :zoom="{ maxRatio: 3 }"
-        class="image-swiper w-full h-full"
+        
+        :class="swiperClass"
         @swiper="onSwiper"
         @slideChange="onSlideChange"
       >
@@ -29,12 +29,13 @@
           v-for="(item, index) in imageItems" 
           :key="item.id" 
           class="flex items-center justify-center"
+          @click="toggleFullscreen"
         >
           <div class="swiper-zoom-container w-full h-full flex items-center justify-center">
             <img 
               :src="item.file.filePath" 
               :alt="item.title || `图片 ${index + 1}`"
-              class="max-w-full max-h-full object-contain"
+              class="max-w-full max-h-full object-contain cursor-pointer"
               loading="lazy"
             />
           </div>
@@ -42,27 +43,32 @@
       </swiper>
 
       <!-- 信息覆盖层 - 底部 -->
-      <div class="info-overlay">
+      <div class="info-overlay" v-if="isFullscreenEnabled">
         <div class="info-content">
-          <h1 v-if="currentImageTitle" class="image-title">{{ currentImageTitle }}</h1>
-          <p v-if="currentImageDescription" class="image-description">{{ currentImageDescription }}</p>
+          <h1 v-if="currentImageTitle" class="image-title" v-html="currentImageTitle"></h1>
+          <p v-if="currentImageDescription" class="image-description" v-html="currentImageDescription"></p>
           <div class="image-counter">{{ activeIndex + 1 }} / {{ imageItems.length }}</div>
         </div>
       </div>
     </div>
+
+    <div v-if="!isFullscreenEnabled" v-html="description" class="description-container">
+      
+    </div>
+ 
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 // 导入Swiper相关组件
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Pagination, Navigation, Keyboard, Zoom, Autoplay, A11y } from 'swiper/modules'
+import { Pagination, Keyboard, Zoom, Autoplay, A11y } from 'swiper/modules'
 
 // 导入Swiper样式
 import 'swiper/css'
 import 'swiper/css/pagination'
-import 'swiper/css/navigation'
 import 'swiper/css/zoom'
 
 export default {
@@ -84,17 +90,32 @@ export default {
       type: String,
       default: ''
     },
+    contentData: {
+      type: Object,
+      default: () => ({})
+    },
     pageData: {
+      type: Object,
+      default: () => ({})
+    },
+    headerSettings: {
+      type: Object,
+      default: () => ({})
+    },
+    footerSettings: {
       type: Object,
       default: () => ({})
     }
   },
   setup(props) {
+    const router = useRouter()
+    const route = useRoute()
     const swiperInstance = ref(null)
     const activeIndex = ref(0)
+    const isUserFullscreen = ref(false) // 添加用户控制的全屏状态
 
     // Swiper模块
-    const swiperModules = [Pagination, Navigation, Keyboard, Zoom, Autoplay, A11y]
+    const swiperModules = [Pagination, Keyboard, Zoom, Autoplay, A11y]
 
     // 过滤出图片类型的媒体项目
     const imageItems = computed(() => {
@@ -113,6 +134,14 @@ export default {
     const currentImageDescription = computed(() => {
       const currentItem = imageItems.value[activeIndex.value]
       return currentItem?.description || props.description || ''
+    })
+
+    // 计算底部样式
+    const footerStyle = computed(() => {
+      const settings = props.footerSettings
+      return {
+        backgroundColor: settings.backgroundColor || '#f8f9fa'
+      }
     })
 
     // Swiper实例初始化
@@ -146,11 +175,77 @@ export default {
             swiperInstance.value.autoplay.start()
           }
           break
+        case 'Escape': // ESC键退出全屏
+          if (isUserFullscreen.value) {
+            // 使用toggleFullscreen来保持URL同步
+            toggleFullscreen()
+          }
+          break
       }
     }
 
+    // 切换全屏模式
+    const toggleFullscreen = () => {
+      if (!isUserFullscreen.value) {
+        // 进入全屏，添加锚点
+        isUserFullscreen.value = true
+        const currentImageIndex = activeIndex.value
+        const imageId = imageItems.value[currentImageIndex]?.id || currentImageIndex
+        router.push({ 
+          path: route.path, 
+          hash: `#fullscreen-${imageId}` 
+        })
+      } else {
+        // 退出全屏，移除锚点
+        isUserFullscreen.value = false
+        router.push({ 
+          path: route.path, 
+          hash: '' 
+        })
+      }
+    }
+
+    // 监听路由变化，处理浏览器后退
+    watch(() => route.hash, (newHash) => {
+      if (newHash.startsWith('#fullscreen-')) {
+        // 如果URL包含全屏锚点但当前不是全屏状态，则进入全屏
+        if (!isUserFullscreen.value) {
+          isUserFullscreen.value = true
+        }
+        
+        // 解析图片ID并跳转到对应图片
+        const imageId = newHash.replace('#fullscreen-', '')
+        const imageIndex = imageItems.value.findIndex(item => 
+          item.id.toString() === imageId || 
+          imageItems.value.indexOf(item).toString() === imageId
+        )
+        if (imageIndex !== -1 && swiperInstance.value) {
+          swiperInstance.value.slideTo(imageIndex)
+        }
+      } else {
+        // 如果URL没有全屏锚点，则退出全屏
+        if (isUserFullscreen.value) {
+          isUserFullscreen.value = false
+        }
+      }
+    }, { immediate: true })
+
     onMounted(() => {
       window.addEventListener('keydown', handleKeyDown)
+      
+      // 检查初始URL是否包含全屏锚点
+      if (route.hash.startsWith('#fullscreen-')) {
+        isUserFullscreen.value = true
+        const imageId = route.hash.replace('#fullscreen-', '')
+        const imageIndex = imageItems.value.findIndex(item => 
+          item.id.toString() === imageId || 
+          imageItems.value.indexOf(item).toString() === imageId
+        )
+        if (imageIndex !== -1) {
+          activeIndex.value = imageIndex
+        }
+      }
+      
       console.log('图片页面加载完成，共', imageItems.value.length, '张图片')
     })
 
@@ -161,21 +256,55 @@ export default {
       }
     })
 
+    // 计算是否启用全屏模式
+    const isFullscreenEnabled = computed(() => {
+      return props.contentData?.fullscreenEnabled === true || isUserFullscreen.value
+    })
+
+    // 计算容器的class
+    const containerClass = computed(() => {
+      return isFullscreenEnabled.value ? 'fullscreen-container' : 'adaptive-container'
+    })
+
+    // 计算Swiper的class
+    const swiperClass = computed(() => {
+      const baseClass = 'image-swiper'
+      if (isFullscreenEnabled.value) {
+        return `${baseClass} w-full h-full`
+      } else {
+        return `${baseClass} adaptive-swiper`
+      }
+    })
+
+    const pageClass = computed(() => {
+      return isFullscreenEnabled.value ? 'image-only-page' : 'image-only-page-adaptive'
+    })
+
     return {
+      router,
+      route,
       swiperInstance,
       activeIndex,
+      isUserFullscreen,
       swiperModules,
       imageItems,
       currentImageTitle,
       currentImageDescription,
       onSwiper,
-      onSlideChange
+      onSlideChange,
+      toggleFullscreen,
+      footerStyle,
+      isFullscreenEnabled,
+      containerClass,
+      swiperClass,
+      pageClass
     }
   }
 }
 </script>
 
 <style scoped>
+/* 全屏模式样式 */
 .image-only-page {
   position: fixed;
   top: 0;
@@ -186,10 +315,42 @@ export default {
   overflow: hidden;
 }
 
-.image-slider-container {
+.image-only-page-adaptive {
+  position: relative; /* 改为relative定位 */
+  width: 100%;
+  min-height: 100vh; /* 改为最小高度 */
+  overflow: auto; /* 允许滚动 */
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreen-container {
   position: relative;
   width: 100%;
   height: 100%;
+}
+
+/* 自适应模式样式 */
+.adaptive-container {
+  position: relative;
+  width: 100%; 
+  height: 68vh;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.description-container {
+  @apply m-2 px-2 pb-10 leading-relaxed; 
+   
+}
+
+.adaptive-swiper {
+  width: 100%;
+  height: 100%;
+  max-height: 80vh; /* 增加最大高度 */
 }
 
 /* Swiper 自定义样式 */
@@ -205,30 +366,41 @@ export default {
   z-index: 20;
 }
 
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-  background-color: rgba(0, 0, 0, 0.3);
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: -25px;
-  z-index: 20;
-}
-
-:deep(.swiper-button-next)::after,
-:deep(.swiper-button-prev)::after {
-  font-size: 24px;
-}
-
 :deep(.swiper-zoom-container) {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+:deep(.swiper-wrapper) {
+  align-items: center !important;
+}
+
+:deep(.swiper-slide) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 图片样式优化 */
+img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* 确保图片在zoom容器中正确居中 */
+:deep(.swiper-zoom-container img) {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
 }
 
 /* 信息覆盖层样式 */
@@ -286,8 +458,23 @@ export default {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+.fullscreen-hint {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  margin-top: 5px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  animation: fadeInOut 3s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
 /* 移动端适配 */
-@media (max-width: 768px) {
+@media (max-width: 768px) { 
+   
+  
   .info-overlay {
     padding: 40px 15px 15px;
   }
@@ -301,24 +488,14 @@ export default {
     -webkit-line-clamp: 2;
   }
   
-  :deep(.swiper-button-next),
-  :deep(.swiper-button-prev) {
-    width: 40px;
-    height: 40px;
-    margin-top: -20px;
-  }
-  
-  :deep(.swiper-button-next)::after,
-  :deep(.swiper-button-prev)::after {
-    font-size: 18px;
-  }
-  
   :deep(.swiper-pagination) {
     bottom: 100px !important;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 480px) { 
+   
+  
   .image-title {
     font-size: 1.3rem;
   }
@@ -332,21 +509,76 @@ export default {
   }
 }
 
-/* 图片样式 */
-img {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
 /* 淡入淡出过渡效果 */
 .swiper-slide {
   opacity: 0;
   transition: opacity 0.3s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
 }
 
 .swiper-slide-active {
   opacity: 1;
+}
+
+/* 页面底部样式 */
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 20px;
+  border-top: 1px solid #eee;
+  z-index: 30;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  padding: 0px 4px;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ccc;
+  text-decoration: none;
+}
+
+.copyright {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Footer responsive styles */
+@media (max-width: 768px) {
+  .footer-links {
+    gap: 2px;
+    margin-bottom: 5px;
+  }
+  
+  .footer-link {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
 }
 </style> 

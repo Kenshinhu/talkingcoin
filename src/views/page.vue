@@ -151,8 +151,16 @@ export default {
 
         //使用 name - description 作为页面标题
         const {name, description} = response?.data
-        document.title = `${name} - ${description}`;
-        console.log('页面数据:', response)
+        // 过滤HTML标签的函数
+        const stripHtmlTags = (html) => {
+          if (!html) return '';
+          const div = document.createElement('div');
+          div.innerHTML = html;
+          return div.textContent || div.innerText || '';
+        };
+        
+        document.title = [stripHtmlTags(name), stripHtmlTags(description)].filter(v => v.trim() !=='').join(' - ')
+        console.log('stripHtmlTags(description):', stripHtmlTags(description))
         console.log('页面类型:', response?.data?.pageType)
         
       } catch (err) {

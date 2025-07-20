@@ -8,7 +8,7 @@ const videoId = computed(() => route.params.id)
 // 构建视频URL
 const videoUrl = computed(() => {
   if (videoId.value) {
-    const url = `http://m.talkingcoin.cn/video-player.html?vid=${videoId.value}`
+    const url = `https://m.talkingcoin.cn/video-player.html?vid=${videoId.value}`
     console.log('构建的视频URL:', url)
     return url
   }

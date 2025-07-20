@@ -1,13 +1,24 @@
 <template>
   <div class="mixed-page">
     <!-- 页面头部 -->
-    <div v-if="headerSettings && Object.keys(headerSettings).length > 0" 
-         class="page-header"
-         :style="headerStyle">
-      <h1 class="header-text" :style="headerTextStyle">
-        {{ headerSettings.text || name }}
-      </h1>
+    <div class="header-container" v-if="headerSettings && Object.keys(headerSettings).length > 0" >
+      <div class="page-header"
+          :style="headerStyle">
+        <h1 class="header-text" :style="headerTextStyle">
+          {{ headerSettings.text || name }}
+        </h1>
+        <!-- 页面头部背景图片 -->
+      </div>
+      <div class="header-background-image-container">
+        <img 
+          v-if="headerSettings.file && headerSettings.file.filePath"
+          :src="headerSettings.file.filePath" 
+          :alt="headerSettings.text || name"
+          class="header-background-image"
+        />
+      </div>
     </div>
+    
 
     <!-- Banner 区域 -->
     <div v-if="bannerItems && bannerItems.length > 0" class="banner-section">
@@ -51,7 +62,7 @@
               <div class="video-overlay"></div>
               
               <!-- 中央播放/暂停切换按钮 -->
-              <div class="video-play-button">
+              <div class="video-play-button" v-if="!getVideoState(index, 'isPlaying')">
                 <!-- 播放图标 -->
                 <button class="play-btn">
                   <svg v-if="!getVideoState(index, 'isPlaying')" xmlns="http://www.w3.org/2000/svg" class="play-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -65,7 +76,7 @@
               </div>
 
               <!-- 控制按钮 -->
-              <!-- <div class="video-controls">
+              <div class="video-controls">
                 <div class="controls-container">
                   <button v-if="getVideoState(index, 'isPlaying')" @click.stop="togglePlay(index)" class="control-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" class="control-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,7 +92,7 @@
                     </svg>
                   </button>
                 </div>
-              </div> -->
+              </div>
             </div>
             
             <div v-if="banner.title || banner.description" class="banner-overlay">
@@ -114,6 +125,7 @@
             <div v-for="media in section.mediaItemsData" 
                  :key="media.id" 
                  class="media-item"
+                 @click="handleMediaClick(media)"
                  :style="getMediaItemStyle(section)">
               <div class="media-content">
                 <img v-if="media.mediaType === 'image'"
@@ -145,12 +157,40 @@
          class="page-footer"
          :style="footerStyle">
       <div class="footer-content">
+        <!-- 动态链接渲染 -->
+        <div v-if="footerSettings.links && footerSettings.links.length > 0" class="footer-links">
+          <template v-for="link in footerSettings.links" :key="link.text">
+            <!-- Web链接 -->
+            <a v-if="link.type === 'web'" 
+               :href="link.url" 
+               rel="noopener noreferrer"
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 电话链接 -->
+            <a v-else-if="link.type === 'phone'" 
+               :href="`tel:${link.url}`" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 邮箱链接 -->
+            <a v-else-if="link.type === 'email'" 
+               :href="`mailto:${link.url}`" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 其他类型链接 -->
+            <a v-else 
+               :href="link.url" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+          </template>
+        </div>
+        
         <p v-if="footerSettings.copyrightText" class="copyright">
           {{ footerSettings.copyrightText }}
-        </p>
-        <div v-if="footerSettings.showSocialLinks" class="social-links">
-          <!-- 这里可以添加社交媒体链接 -->
-        </div>
+        </p> 
       </div>
     </div>
   </div>
@@ -212,6 +252,8 @@ export default {
     const videoRefs = ref({})
     const videoStates = reactive({})
     const isIOS = ref(false)
+
+ 
 
     // 初始化视频状态
     const initVideoState = (index) => {
@@ -374,6 +416,8 @@ export default {
       const settings = props.headerSettings
       return {
         height: settings.height || 'auto',
+        minHeight: '50px',
+        marginTop: settings.marginTop || '0',
         backgroundColor: settings.backgroundColor || 'transparent',
         textAlign: settings.textAlign || 'center'
       }
@@ -470,10 +514,6 @@ export default {
 
     // 获取媒体项目样式（支持每个section独立配置）
     const getMediaItemStyle = (section) => {
-      // 支持最小高宽比1，最大高宽比2的需求
-      let aspectRatio = parseFloat(1)
-      // 限制高宽比范围：最小1（正方形），最大2（宽度是高度的2倍）
-      aspectRatio = 3/ 4;
       const layout = section.mediaLayout || props.contentData.mediaLayout || 'grid'
       const perRow = parseInt(section.mediaPerRow || props.contentData.mediaPerRow || 2)
       const gap = section.gridGap || props.contentData.gridGap || '4px' // 小红书风格超窄间隙
@@ -497,14 +537,14 @@ export default {
           flexBasis: flexBasis,
           flexShrink: 0,
           flexGrow: 0,
-          aspectRatio: aspectRatio.toString(),
+          // 移除 aspectRatio，让内容自然高度
           minWidth: 0
         }
       } else if (layout === 'grid') {
         return {
           ...baseStyle,
-          aspectRatio: aspectRatio.toString(),
           width: '100%',
+          // 移除 aspectRatio，让内容自然高度
           minWidth: 0
         }
       } else if (layout === 'masonry') {
@@ -518,8 +558,8 @@ export default {
       }
       
       return {
-        ...baseStyle,
-        aspectRatio: aspectRatio.toString()
+        ...baseStyle
+        // 移除 aspectRatio，让内容自然高度
       }
     }
 
@@ -548,9 +588,100 @@ export default {
       return getMediaItemStyle(props.contentData)
     })
 
+    // 瀑布流布局函数
+    const initMasonryLayout = () => {
+      nextTick(() => {
+        const masonryGrids = document.querySelectorAll('.media-grid[style*="display: grid"]')
+        
+        masonryGrids.forEach(grid => {
+          const items = grid.querySelectorAll('.media-item')
+          const columnCount = getComputedStyle(grid).gridTemplateColumns.split(' ').length
+          const gap = parseFloat(getComputedStyle(grid).gap) || 4
+          
+          // 如果浏览器不支持CSS Grid masonry，使用JavaScript实现
+          if (!CSS.supports('grid-template-rows', 'masonry')) {
+            applyMasonryLayout(grid, items, columnCount, gap)
+          }
+        })
+      })
+    }
+
+    // JavaScript瀑布流布局实现
+    const applyMasonryLayout = (grid, items, columnCount, gap) => {
+      // 创建列高度数组
+      const columnHeights = new Array(columnCount).fill(0)
+      
+      // 重置grid为相对定位
+      grid.style.position = 'relative'
+      grid.style.height = 'auto'
+      
+      items.forEach((item, index) => {
+        // 找到最短的列
+        const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights))
+        
+        // 计算项目位置
+        const itemWidth = (grid.offsetWidth - gap * (columnCount - 1)) / columnCount
+        const left = shortestColumnIndex * (itemWidth + gap)
+        const top = columnHeights[shortestColumnIndex]
+        
+        // 设置项目位置
+        item.style.position = 'absolute'
+        item.style.left = `${left}px`
+        item.style.top = `${top}px`
+        item.style.width = `${itemWidth}px`
+        
+        // 更新列高度
+        columnHeights[shortestColumnIndex] += item.offsetHeight + gap
+      })
+      
+      // 设置容器高度
+      grid.style.height = `${Math.max(...columnHeights)}px`
+    }
+
+    // 等待图片加载完成后重新布局
+    const waitForImagesAndLayout = () => {
+      nextTick(() => {
+        const images = document.querySelectorAll('.media-grid .media-image')
+        let loadedCount = 0
+        const totalImages = images.length
+        
+        if (totalImages === 0) {
+          initMasonryLayout()
+          return
+        }
+        
+        const checkAllLoaded = () => {
+          loadedCount++
+          if (loadedCount === totalImages) {
+            initMasonryLayout()
+          }
+        }
+        
+        images.forEach(img => {
+          if (img.complete) {
+            checkAllLoaded()
+          } else {
+            img.addEventListener('load', checkAllLoaded)
+            img.addEventListener('error', checkAllLoaded)
+          }
+        })
+      })
+    }
+
+    // 响应式重新布局
+    const handleResize = () => {
+      initMasonryLayout()
+    }
+
     onMounted(() => {
       // 检测iOS设备
       detectIOS()
+      
+      // 等待图片加载完成后初始化瀑布流布局
+      waitForImagesAndLayout()
+      
+      // 添加窗口大小变化监听
+      window.addEventListener('resize', handleResize)
       
       // 添加全屏变化事件监听
       document.addEventListener('fullscreenchange', handleFullscreenChange)
@@ -560,11 +691,24 @@ export default {
     })
 
     onUnmounted(() => {
+      // 清理窗口大小变化监听
+      window.removeEventListener('resize', handleResize)
+      
+      // 清理全屏变化事件监听
       document.removeEventListener('fullscreenchange', handleFullscreenChange)
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
       document.removeEventListener('mozfullscreenchange', handleFullscreenChange)
       document.removeEventListener('MSFullscreenChange', handleFullscreenChange)
     })
+
+       // 媒体点击事件处理
+    const handleMediaClick = (media) => { 
+      // log media value
+      // check linkedContentId is not null, if not null redirect to linkedContentId
+      if (media.linkedContentId) {
+        window.location.href = '/page/' + media.linkedContentId + '?mediaId=' + media.id
+      }
+    }
 
     return {
       modules,
@@ -587,7 +731,8 @@ export default {
       getMediaItemStyle,
       debugSectionConfig,
       mediaGridStyle,
-      mediaItemStyle
+      mediaItemStyle,
+      handleMediaClick
     }
   }
 }
@@ -598,11 +743,17 @@ export default {
   min-height: 100vh;
   background-color: #fff;
 }
+ 
+
+.header-background-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 /* 页面头部样式 */
 .page-header {
-  padding: 20px;
-  border-bottom: 1px solid #eee;
+  @apply flex flex-col items-center justify-center;
 }
 
 .header-text {
@@ -620,7 +771,7 @@ export default {
 
 .banner-swiper {
   width: 100%;
-  height: 400px;
+  height: calc(100vw * 0.5625);
   background-color: #000; /* 添加黑色背景 */
 }
 
@@ -762,9 +913,38 @@ export default {
   padding: 0;
 }
 
-/* Grid布局样式 */
+/* Grid布局样式 - 瀑布流效果 */
 .media-grid[style*="display: grid"] {
   align-items: start;
+  /* 使用CSS Grid的瀑布流布局 */
+  grid-auto-rows: min-content;
+  /* 优化网格项目的放置算法 */
+  grid-auto-flow: row dense;
+  /* 添加更细粒度的行控制 */
+  grid-template-rows: masonry;
+}
+
+/* 对于不支持masonry的浏览器，使用JavaScript瀑布流 */
+@supports not (grid-template-rows: masonry) {
+  .media-grid[style*="display: grid"] {
+    /* 保持原有的grid布局作为fallback */
+    display: grid;
+    align-items: start;
+    /* 在JavaScript接管之前提供基本的网格布局 */
+    grid-auto-rows: min-content;
+    grid-auto-flow: row dense;
+  }
+  
+  .media-grid[style*="display: grid"] .media-item {
+    /* JavaScript瀑布流布局会覆盖这些样式 */
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    align-self: start;
+    /* 确保在JavaScript布局之前有合理的显示 */
+    margin-bottom: 0;
+    break-inside: avoid;
+  }
 }
 
 /* Flex布局样式 */
@@ -786,12 +966,18 @@ export default {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   background-color: #fff;
   box-sizing: border-box;
+  /* 确保项目高度自适应内容 */
+  height: fit-content;
 }
 
-/* Grid布局下的媒体项目 */
+/* Grid布局下的媒体项目 - 瀑布流优化 */
 .media-grid[style*="display: grid"] .media-item {
   width: 100%;
   min-width: 0;
+  /* 移除固定高度，让内容自然流动 */
+  height: auto;
+  /* 确保项目能够紧密排列 */
+  align-self: start;
 }
 
 /* Flex布局下的媒体项目 */
@@ -839,10 +1025,10 @@ export default {
 }
 
 .media-title {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 500;
   margin: 0 0 2px 0;
-  line-height: 1.2;
+  line-height: 1.5;
   /* 最多显示两行 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -868,9 +1054,9 @@ export default {
 
 /* 页面底部样式 */
 .page-footer {
-  padding: 30px 20px;
+  padding: 10px 20px;
   border-top: 1px solid #eee;
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .footer-content {
@@ -879,10 +1065,33 @@ export default {
   text-align: center;
 }
 
-.copyright {
-  margin: 0;
-  color: #fff;
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; 
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: underline;
   font-size: 0.9rem;
+  padding: 0px 4px; 
+  transition: all 0.3s ease; 
+}
+
+.footer-link:hover {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ccc;
+  text-decoration: none;
+}
+
+.copyright {
+  margin: 0; 
+  font-size: 0.9rem;
+  color: #888;
 }
 
 .social-links {
@@ -906,7 +1115,7 @@ export default {
 /* 移动设备响应式设计 */
 @media (max-width: 768px) {
   .banner-swiper {
-    height: 250px;
+    height: calc(100vw * 0.5625);
   }
   
   .banner-title {
@@ -918,11 +1127,22 @@ export default {
   }
   
   .main-content {
-    padding: 20px 4px;
+    padding: 10px 4px;
   }
   
   .section-title {
     font-size: 1.5rem;
+  }
+  
+  /* Footer responsive styles */
+  .footer-links {
+    gap: 2px;
+    margin-bottom: 5px;
+  }
+  
+  .footer-link {
+    font-size: 0.85rem;
+    padding: 6px 10px;
   }
   
   /* Grid布局使用移动设备列数 
@@ -962,9 +1182,6 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .banner-swiper {
-    height: 200px;
-  }
   
   .banner-title {
     font-size: 1.5rem;
@@ -976,7 +1193,7 @@ export default {
   
   /* 超小屏幕优化 */
   .main-content {
-    padding: 15px 4px;
+    padding: 10px 4px;
   }
   
   .sections-container {

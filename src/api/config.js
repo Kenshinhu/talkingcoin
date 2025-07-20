@@ -16,7 +16,7 @@ export const API_CONFIG = {
 // 环境配置
 export const ENV_CONFIG = {
   development: {
-    BASE_URL: 'https://api.talkingcoin.cn'
+    BASE_URL: 'http://api.talkingcoin.cn'
   },
   production: {
     BASE_URL: 'https://api.talkingcoin.cn'

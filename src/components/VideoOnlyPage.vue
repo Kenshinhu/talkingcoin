@@ -21,7 +21,7 @@
       </video>
       
       <!-- 透明点击层 - 覆盖在视频上方 -->
-      <div class="video-click-overlay" @click="togglePlayPause"></div>
+      <div class="video-click-overlay" :class="{ 'hidden': !isPaused }" @click="togglePlayPause"></div>
       
       <!-- 视频信息覆盖层 - 底部 -->
       <div class="video-info-overlay" @click.stop>
@@ -41,6 +41,49 @@
             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
           </svg>
         </div>
+      </div>
+    </div>
+
+    <!-- 页面底部 -->
+    <div v-if="footerSettings && Object.keys(footerSettings).length > 0" 
+         class="page-footer"
+         :style="footerStyle">
+      <div class="footer-content">
+        <!-- 动态链接渲染 -->
+        <div v-if="footerSettings.links && footerSettings.links.length > 0" class="footer-links">
+          <template v-for="link in footerSettings.links" :key="link.text">
+            <!-- Web链接 -->
+            <a v-if="link.type === 'web'" 
+               :href="link.url" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 电话链接 -->
+            <a v-else-if="link.type === 'phone'" 
+               :href="`tel:${link.url}`" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 邮箱链接 -->
+            <a v-else-if="link.type === 'email'" 
+               :href="`mailto:${link.url}`" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+            <!-- 其他类型链接 -->
+            <a v-else 
+               :href="link.url" 
+               class="footer-link">
+              {{ link.text }}
+            </a>
+          </template>
+        </div>
+        
+        <p v-if="footerSettings.copyrightText" class="copyright">
+          {{ footerSettings.copyrightText }}
+        </p> 
       </div>
     </div>
   </div>
@@ -67,6 +110,14 @@ export default {
       required: true
     },
     contentData: {
+      type: Object,
+      default: () => ({})
+    },
+    headerSettings: {
+      type: Object,
+      default: () => ({})
+    },
+    footerSettings: {
       type: Object,
       default: () => ({})
     }
@@ -105,6 +156,14 @@ export default {
 
     const description = computed(() => { 
       return props.description || ''
+    })
+
+    // 计算底部样式
+    const footerStyle = computed(() => {
+      const settings = props.footerSettings
+      return {
+        backgroundColor: settings.backgroundColor || '#f8f9fa'
+      }
     })
 
     // 显示播放/暂停指示器
@@ -471,7 +530,8 @@ export default {
       description,
       isPaused,
       showPlayPauseIndicator,
-      togglePlayPause
+      togglePlayPause,
+      footerStyle
     }
   }
 }
@@ -518,6 +578,12 @@ export default {
   z-index: 5;
   cursor: pointer;
   background: transparent;
+  transition: opacity 0.3s ease;
+}
+
+.video-click-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .video-info-overlay {
@@ -684,5 +750,64 @@ export default {
 .video-js.vjs-user-inactive .vjs-control-bar {
   opacity: 1;
   visibility: visible;
+}
+
+/* 页面底部样式 */
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 20px;
+  border-top: 1px solid #eee;
+  z-index: 30;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.footer-link {
+  color: #666;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  padding: 0px 4px;
+  transition: all 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #333;
+  background-color: #f5f5f5;
+  border-color: #ccc;
+  text-decoration: none;
+}
+
+.copyright {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Footer responsive styles */
+@media (max-width: 768px) {
+  .footer-links {
+    gap: 2px;
+    margin-bottom: 5px;
+  }
+  
+  .footer-link {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
 }
 </style> 

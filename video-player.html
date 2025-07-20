@@ -100,7 +100,7 @@
               title: title,
               desc: desc,
               link: currentUrl,
-              imgUrl: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1000,f_jpg`,
+              imgUrl: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1,f_jpg`,
               success: function () {
                 alert('分享成功！');
               }
@@ -109,7 +109,7 @@
             wx.updateTimelineShareData({ 
               title: title,
               link: currentUrl,
-              imgUrl: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1000,f_jpg`,
+              imgUrl: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1,f_jpg`,
               success: function () {
                 alert('分享成功！');
               }
@@ -142,7 +142,7 @@
           fluid: true,
           responsive: true,
           playbackRates: [0.5, 1, 1.5, 2],
-          poster: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1000,f_jpg`,
+          poster: `./files/${videoId}.mp4?x-oss-process=video/snapshot,t_1,f_jpg`,
           controlBar: {
             pictureInPictureToggle: false,
           },
