@@ -27,7 +27,7 @@
       <div class="video-info-overlay" @click.stop>
         <div class="video-info">
           <h1 v-if="title"  class="video-title">{{ title }}</h1>
-          <p v-if="description"   class="video-description">{{ description }}</p>
+          <p v-if="description" class="video-description" v-html="description"></p>
         </div>
       </div>
       

@@ -1,0 +1,53 @@
+{
+  "success": true,
+  "data":  {
+    "id": "redirect-001-uuid-here",
+    "userId": "620f3bcb-1f89-4563-961e-f732ab688a93",
+    "name": "页面跳转中",
+    "description": "正在跳转到目标页面，请稍候...",
+    "miniprogramLink": "",
+    "contentLink": "redirect-link-001",
+    "pageType": "REDIRECT",
+    "headerSettings": {
+      "backgroundColor": "#ffffff",
+      "text": "页面跳转",
+      "textColor": "#333333",
+      "textAlign": "center",
+      "height": "60px"
+    },
+    "footerSettings": {
+      "backgroundColor": "#f8f8f8",
+      "copyrightText": "© 2025 公司名称",
+      "showSocialLinks": false
+    },
+    "contentData": {
+      "targetUrl": "https://baidu.com",
+      "redirectType": "delayed",
+      "delaySeconds": 3,
+      "redirectMessage": {
+        "title": "即将跳转",
+        "description": "页面将在3秒后自动跳转，请稍候...",
+        "textColor": "#666666"
+      },
+      "showCountdown": true,
+      "allowSkip": true,
+      "skipButton": {
+        "text": "立即跳转",
+        "backgroundColor": "#007bff",
+        "textColor": "#ffffff"
+      },
+      "backgroundColor": "#f5f5f5"
+    },
+    "styleSettings": {
+      "theme": "light",
+      "fontFamily": "Arial, sans-serif",
+      "primaryColor": "#007bff"
+    },
+    "expiresAt": "",
+    "isActive": true,
+    "accessCount": 0,
+    "status": "PUBLISHED",
+    "createdAt": "2025-01-15T10:00:00.000Z",
+    "updatedAt": "2025-01-15T10:00:00.000Z"
+  } 
+}

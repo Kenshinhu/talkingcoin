@@ -43,6 +43,7 @@ import api from '../api/index.js'
 import VideoOnlyPage from '../components/VideoOnlyPage.vue'
 import ImageOnlyPage from '../components/ImageOnlyPage.vue'
 import MixedPage from '../components/MixedPage.vue'
+import RedirectPage from '../components/RedirectPage.vue'
 import DefaultPage from '../components/DefaultPage.vue'
 
 export default {
@@ -51,6 +52,7 @@ export default {
     VideoOnlyPage,
     ImageOnlyPage,
     MixedPage,
+    RedirectPage,
     DefaultPage
   },
   setup() {
@@ -64,7 +66,7 @@ export default {
     // 根据pageType计算当前应该使用的组件
     const currentPageComponent = computed(() => {
       const pageType = pageData.value?.data?.pageType
-      
+
       switch (pageType) {
         case 'VIDEO_ONLY':
           return 'VideoOnlyPage'
@@ -72,6 +74,8 @@ export default {
           return 'ImageOnlyPage'
         case 'MIXED':
           return 'MixedPage'
+        case 'REDIRECT':
+          return 'RedirectPage'
         case 'SCENIC_SPOT':
           // 可以在这里添加景点页面组件
           return 'ScenicSpotPage'
@@ -115,6 +119,11 @@ export default {
           return {
             ...baseProps,
             mediaItems: data.mediaItems || []
+          }
+        case 'REDIRECT':
+          return {
+            ...baseProps,
+            // RedirectPage 只需要基础props，不需要额外的mediaItems
           }
         case 'SCENIC_SPOT':
           return {
