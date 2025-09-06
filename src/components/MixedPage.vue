@@ -113,6 +113,7 @@
         <div v-for="(section, sectionIndex) in contentData.sections" 
              :key="section.id" 
              class="section"
+             :data-section-layout="section.sectionLayout || 'row'"
              :style="getSectionStyle(section, sectionIndex)">
           <!-- <h2 v-if="section.title" class="section-title">{{ section.title }}</h2> -->
           
@@ -450,15 +451,31 @@ export default {
     // 获取单个section的样式
     const getSectionStyle = (section, sectionIndex) => {
       const sectionGap = section.sectionGap || props.contentData.sectionGap || '20px'
-      return {
+      const sectionLayout = section.sectionLayout || 'row'
+      
+      const baseStyle = {
         marginBottom: sectionIndex < props.contentData.sections.length - 1 ? sectionGap : '0'
       }
+      
+      // 如果是 column 布局，设置 section 为 flex 容器
+      if (sectionLayout === 'column') {
+        return {
+          ...baseStyle,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%'
+        }
+      }
+      
+      return baseStyle
     }
 
     // 获取媒体网格样式（支持每个section独立配置）
     const getMediaGridStyle = (section) => {
       // 优先使用section级别的配置，然后是contentData级别的配置
       const layout = section.mediaLayout || props.contentData.mediaLayout || 'grid'
+      const sectionLayout = section.sectionLayout || 'row'
       const perRow = parseInt(section.mediaPerRow || props.contentData.mediaPerRow || 2)
       const gap = section.gridGap || props.contentData.gridGap || '4px' // 小红书风格超窄间隙
       
@@ -469,6 +486,19 @@ export default {
       const baseStyle = {
         width: '100%',
         boxSizing: 'border-box'
+      }
+      
+      // 如果是 column 布局，强制使用单列显示
+      if (sectionLayout === 'column') {
+        return {
+          ...baseStyle,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: gap,
+          alignItems: 'center',
+          maxWidth: '400px', // 限制最大宽度使其更像列表
+          margin: '0 auto'
+        }
       }
       
       if (layout === 'grid') {
@@ -515,6 +545,7 @@ export default {
     // 获取媒体项目样式（支持每个section独立配置）
     const getMediaItemStyle = (section) => {
       const layout = section.mediaLayout || props.contentData.mediaLayout || 'grid'
+      const sectionLayout = section.sectionLayout || 'row'
       const perRow = parseInt(section.mediaPerRow || props.contentData.mediaPerRow || 2)
       const gap = section.gridGap || props.contentData.gridGap || '4px' // 小红书风格超窄间隙
       
@@ -523,6 +554,16 @@ export default {
         overflow: 'hidden',
         borderRadius: '2px',
         boxSizing: 'border-box'
+      }
+      
+      // 如果是 column 布局，设置为全宽度
+      if (sectionLayout === 'column') {
+        return {
+          ...baseStyle,
+          width: '100%',
+          maxWidth: '100%',
+          flexShrink: 0
+        }
       }
       
       if (layout === 'flex') {
@@ -567,6 +608,7 @@ export default {
     const debugSectionConfig = (section, sectionIndex) => {
       if (process.env.NODE_ENV === 'development') {
         console.log(`Section ${sectionIndex} 配置:`, {
+          sectionLayout: section.sectionLayout || 'row',
           mediaLayout: section.mediaLayout || props.contentData.mediaLayout || 'grid',
           mediaPerRow: section.mediaPerRow || props.contentData.mediaPerRow || 2,
           tabletPerRow: section.tabletPerRow || props.contentData.tabletPerRow || 'auto',
@@ -913,6 +955,21 @@ export default {
   padding: 0;
 }
 
+/* Column布局专用样式 */
+.section[data-section-layout="column"] .media-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+}
+
+.section[data-section-layout="column"] .media-item {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex-basis: auto !important;
+}
+
 /* Grid布局样式 - 瀑布流效果 */
 .media-grid[style*="display: grid"] {
   align-items: start;
@@ -1105,10 +1162,16 @@ export default {
     grid-template-columns: repeat(var(--tablet-columns, 3), 1fr) !important;
   }
   */
-  /* Flex布局使用平板列数 */
-  .media-grid[style*="display: flex"] .media-item {
+  /* Row布局 - Flex布局使用平板列数 */
+  .section[data-section-layout="row"] .media-grid[style*="display: flex"] .media-item {
     flex-basis: calc(100% / var(--tablet-columns, 3) - var(--gap-adjustment, 15px)) !important;
     max-width: calc(100% / var(--tablet-columns, 3) - var(--gap-adjustment, 15px)) !important;
+  }
+  
+  /* Column布局 - 媒体项目使用全宽度 */
+  .section[data-section-layout="column"] .media-grid .media-item {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
   }
 }
 
@@ -1145,14 +1208,26 @@ export default {
     padding: 6px 10px;
   }
   
+  /* Column布局移动端优化 */
+  .section[data-section-layout="column"] .media-grid {
+    max-width: 100% !important;
+    padding: 0 10px !important;
+  }
+  
+  /* Column布局 - 媒体项目使用全宽度 */
+  .section[data-section-layout="column"] .media-grid .media-item {
+    flex-basis: 100% !important;
+    max-width: 100% !important;
+  }
+  
   /* Grid布局使用移动设备列数 
   .media-grid[style*="display: grid"] {
     grid-template-columns: repeat(var(--mobile-columns, 2), 1fr) !important;
   }
     */
   
-  /* Flex布局使用移动设备列数 */
-  .media-grid[style*="display: flex"] .media-item {
+  /* Row布局 - Flex布局使用移动设备列数 */
+  .section[data-section-layout="row"] .media-grid[style*="display: flex"] .media-item {
     flex-basis: calc(100% / var(--mobile-columns, 2) - var(--gap-adjustment, 10px)) !important;
     max-width: calc(100% / var(--mobile-columns, 2) - var(--gap-adjustment, 10px)) !important;
   }
@@ -1273,8 +1348,7 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.2);
+  bottom: 0; 
   z-index: 2;
   pointer-events: none;
 }
